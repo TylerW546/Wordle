@@ -16,77 +16,32 @@ wordsFile.close()
 wordslist = words.split("\n")
 
 targetWordLength = 5
+totalTries = 10
 
 validWords = []
 for word in wordslist:
     if len(word) == targetWordLength:
         validWords.append(word)
 
-targetWord = random.choice(validWords)
-
-guesses = 0
 guessStrings = ["Genius", "Magnificent", "Impressive", "Splendid", "Great", "Phew"]
 
-WIDTH = 500
-HEIGHT = 700
+targetWord = None
+guesses = 0
 
-white = (255,255,255)
-black = (0,0,0)
-red = (255,0,0)
+def generateGame():
+    global targetWord
+    targetWord = random.choice(validWords)
+    print(targetWord)
+    global guesses
+    guesses = 0
+    
+    WordInput.inputs = []
+    for i in range(1,totalTries+1):
+        WordInput(WIDTH/2-WordInput.width/2, WordInput.height*i, targetWord)
+    WordInput.focused = WordInput.inputs[0]
 
-wrongColor = (119,125,127)
-wrongSpotColor = (133,192,249)
-rightSpotColor = (245,121,58)
+    Keyboard.setup()
     
-pygame.init()
-pygame.font.init()
-
-letterFont = pygame.font.SysFont('Helvetica', 50,)
-alertFont = pygame.font.SysFont('Helvetica', 20,)
-keyboardLetterFont = pygame.font.SysFont('Helvetica', 15, bold=True)
-titleFont = pygame.font.SysFont('Times New Roman', 50, bold=True)
-
-screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SRCALPHA, 32)
-screen.fill(white)
-
-class Alert():
-    alerts = []
-    
-    background = black
-    letters = white
-    
-    height = 50
-    margin = 10
-    
-    def __init__(self, string, lifetime=1):
-        self.string = string
-        
-        self.timeOfDeath = time.time() + lifetime
-        
-        textSurf = alertFont.render(self.string, False, Alert.letters)
-        self.surface = pygame.Surface((textSurf.get_rect().width+20, Alert.height))
-        self.surface.fill(Alert.background)
-        rect = textSurf.get_rect(center = (self.surface.get_rect().width/2, Alert.height/2))
-        self.surface.blit(textSurf, rect)
-        
-        Alert.alerts.insert(0,self)
-    
-    def draw(self, x, y):
-        rect = self.surface.get_rect(center=(x, y))
-        screen.blit(self.surface, rect)
-    
-    @staticmethod
-    def update():
-        now = time.time()
-        i = 0
-        while i < len(Alert.alerts):
-            if Alert.alerts[i].timeOfDeath < now:
-                Alert.alerts.pop(i)
-                i-=1
-            else:
-                Alert.alerts[i].draw(WIDTH/2, 2*Alert.height+(Alert.height+2*Alert.margin)*i)
-            i+=1
-
 class LetterBox():
     innerWidth = 60
     innerHeight = 60
@@ -198,7 +153,7 @@ class WordInput():
             # Set correctness of letters
             if self.judgeCorrectness():
                 # Win
-                Alert(guessStrings[guesses-1])
+                Alert(guessStrings[(guesses-1)*(len(guessStrings)-1)//(totalTries-1)])
             else:
                 # Set focus to next word
                 WordInput.focusNext()
@@ -251,6 +206,69 @@ class WordInput():
         else:
             WordInput.focused = WordInput.inputs[focusedIndex+1]
 
+WIDTH = max(500,20+int(targetWordLength*(LetterBox.surfaceWidth+2*LetterBox.marginLR)))
+HEIGHT = max(700,304+int(totalTries*(LetterBox.surfaceHeight+2*LetterBox.marginTB)))
+
+white = (255,255,255)
+black = (0,0,0)
+red = (255,0,0)
+
+wrongColor = (119,125,127)
+wrongSpotColor = (201,180,88)
+rightSpotColor = (106,169,100)
+    
+pygame.init()
+pygame.font.init()
+
+letterFont = pygame.font.SysFont('Helvetica', 50,)
+alertFont = pygame.font.SysFont('Helvetica', 20,)
+keyboardLetterFont = pygame.font.SysFont('Helvetica', 15, bold=True)
+titleFont = pygame.font.SysFont('Times New Roman', 50, bold=True)
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SRCALPHA, 32)
+pygame.display.set_caption('Wordle')
+pygame.display.set_icon(pygame.image.load("icon.png"))
+screen.fill(white)
+
+class Alert():
+    alerts = []
+    
+    background = black
+    letters = white
+    
+    height = 50
+    margin = 10
+    
+    def __init__(self, string, lifetime=1):
+        self.string = string
+        
+        self.timeOfDeath = time.time() + lifetime
+        
+        textSurf = alertFont.render(self.string, False, Alert.letters)
+        self.surface = pygame.Surface((textSurf.get_rect().width+20, Alert.height))
+        self.surface.fill(Alert.background)
+        rect = textSurf.get_rect(center = (self.surface.get_rect().width/2, Alert.height/2))
+        self.surface.blit(textSurf, rect)
+        
+        Alert.alerts.insert(0,self)
+    
+    def draw(self, x, y):
+        rect = self.surface.get_rect(center=(x, y))
+        screen.blit(self.surface, rect)
+    
+    @staticmethod
+    def update():
+        now = time.time()
+        i = 0
+        while i < len(Alert.alerts):
+            if Alert.alerts[i].timeOfDeath < now:
+                Alert.alerts.pop(i)
+                i-=1
+            else:
+                Alert.alerts[i].draw(WIDTH/2, 2*Alert.height+(Alert.height+2*Alert.margin)*i)
+            i+=1
+
+
 class Key():
     backgroundColor = (210,214,218)
     letterColor = black
@@ -266,6 +284,8 @@ class Key():
         
         self.string = string
         self.width = width
+        
+        self.correctness = -1
         
         self.surface = pygame.Surface((self.width, Key.height))
         self.surface.fill(Key.backgroundColor)
@@ -284,7 +304,17 @@ class Key():
         else:
             pygame.event.post(pygame.event.Event(KEYDOWN, unicode = self.string, key=0))
 
-    def changeBackground(self, color):
+    def changeCorrectness(self, correctness):
+        self.correctness = max(self.correctness, correctness)
+        
+        color = Key.backgroundColor
+        if self.correctness == 0:
+            color = wrongColor
+        elif self.correctness == 1:
+            color = wrongSpotColor
+        elif self.correctness == 2:
+            color = rightSpotColor
+        
         self.surface.fill(color)
         self.surface.blit(self.textSurf, self.rect)
     
@@ -301,46 +331,39 @@ keyboardKeys = ["QWERTYUIOP",
                 "0ZXCVBNM1"]
 
 class Keyboard():
-    keys = [[] for i in range(3)]
-    
-    surface = pygame.Surface((10*(43+2*Key.marginLR), 3*(Key.height + 2*Key.marginTB)))
-    surface.fill(white)
-    
-    rect = surface.get_rect(center=(WIDTH/2,HEIGHT-surface.get_rect().height/2))
-    startx = rect.x
-    starty = rect.y
-    
-    for i in range(len(keyboardKeys)):
-        for j in range(len(keyboardKeys[i])):
-            inRowSoFar = 0
-            for key in keys[i]:
-                inRowSoFar += key.width+2*Key.marginLR
-            
-            if keyboardKeys[i][j] == "0":
-                keys[i].append(Key(inRowSoFar+Key.marginLR, (Key.height + 2*Key.marginTB)*i, "ENTER", width = 65))
-            elif keyboardKeys[i][j] == "1":
-                keys[i].append(Key(inRowSoFar+Key.marginLR, (Key.height + 2*Key.marginTB)*i, "DEL", width = 65))
-            else:
-                keys[i].append(Key(inRowSoFar+Key.marginLR, (Key.height + 2*Key.marginTB)*i, keyboardKeys[i][j]))
-            
-            if i == 1:
-                keys[i][j].x += 22
-            
-            keys[i][j].setClickableRect(startx, starty)
+    def setup():
+        Keyboard.keys = [[] for i in range(3)]
+        
+        Keyboard.surface = pygame.Surface((10*(43+2*Key.marginLR), 3*(Key.height + 2*Key.marginTB)))
+        Keyboard.surface.fill(white)
+        
+        Keyboard.rect = Keyboard.surface.get_rect(center=(WIDTH/2,HEIGHT-Keyboard.surface.get_rect().height/2))
+        Keyboard.startx = Keyboard.rect.x
+        Keyboard.starty = Keyboard.rect.y
+        
+        for i in range(len(keyboardKeys)):
+            for j in range(len(keyboardKeys[i])):
+                inRowSoFar = 0
+                for key in Keyboard.keys[i]:
+                    inRowSoFar += key.width+2*Key.marginLR
+                
+                if keyboardKeys[i][j] == "0":
+                    Keyboard.keys[i].append(Key(inRowSoFar+Key.marginLR, (Key.height + 2*Key.marginTB)*i, "ENTER", width = 65))
+                elif keyboardKeys[i][j] == "1":
+                    Keyboard.keys[i].append(Key(inRowSoFar+Key.marginLR, (Key.height + 2*Key.marginTB)*i, "DEL", width = 65))
+                else:
+                    Keyboard.keys[i].append(Key(inRowSoFar+Key.marginLR, (Key.height + 2*Key.marginTB)*i, keyboardKeys[i][j]))
+                
+                if i == 1:
+                    Keyboard.keys[i][j].x += 22
+                
+                Keyboard.keys[i][j].setClickableRect(Keyboard.startx, Keyboard.starty)
     
     def setLetterCorrectness(letter, correctness):
-        color = Key.backgroundColor
-        if correctness == 0:
-            color = wrongColor
-        elif correctness == 1:
-            color = wrongSpotColor
-        elif correctness == 2:
-            color = rightSpotColor
-        
         for row in Keyboard.keys:
             for key in row:
                 if key.string == letter:
-                    key.changeBackground(color)
+                    key.changeCorrectness(correctness)
     
     def handleEvent(event):
         for row in Keyboard.keys:
@@ -352,22 +375,20 @@ class Keyboard():
             for key in row:
                 key.draw(Keyboard.surface)
         screen.blit(Keyboard.surface, Keyboard.rect)
-        
-
-for i in range(1,7):
-    input = WordInput(WIDTH/2-WordInput.width/2, WordInput.height*i, targetWord)
-WordInput.focused = WordInput.inputs[0]
-
 
 title = titleFont.render("Wordle", False, black)
 titleRect = title.get_rect(center=(WIDTH/2, WordInput.height/2))
 
 
+generateGame()
 while (True):
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             exit()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                generateGame()
         
         WordInput.focused.handleEvent(event)
         Keyboard.handleEvent(event)
