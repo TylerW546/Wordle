@@ -6,7 +6,6 @@ import random
 import math
 import time
 
-
 import os
 import shutil
 
@@ -206,19 +205,24 @@ class WordInput():
     
     def judgeCorrectness(self):
         target = targetWord
+        word = self.word
         
         for letter in self.word:
             Keyboard.setLetterCorrectness(letter, 0)
-        for i in range(len(self.word)):
-            if self.word[i] == target[i]:
+        
+        for i in range(len(word)):
+            if word[i] == target[i]:
                 self.letters[i].setCorrectness(2)
-                Keyboard.setLetterCorrectness(self.word[i], 2)
+                Keyboard.setLetterCorrectness(word[i], 2)
+                
                 target = target[:i] + "0" + target[i+1:]
-        for i in range(len(self.word)):
-            if self.word[i] in target:
+                word = word[:i] + "1" + word[i+1:]
+        for i in range(len(word)):
+            if word[i] in target:
                 self.letters[i].setCorrectness(1)
-                Keyboard.setLetterCorrectness(self.word[i], 1)
-                target = target[:target.index(self.word[i])] + "0" + target[target.index(self.word[i])+1:]
+                Keyboard.setLetterCorrectness(word[i], 1)
+                target = target[:target.index(word[i])] + "0" + target[target.index(word[i])+1:]
+                word = word[:i] + "1" + word[i+1:]
                 
                 
         return self.word == targetWord
