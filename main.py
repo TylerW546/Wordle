@@ -58,7 +58,7 @@ class Alert():
     height = 50
     margin = 10
     
-    def __init__(self, string, lifetime=2):
+    def __init__(self, string, lifetime=1):
         self.string = string
         
         self.timeOfDeath = time.time() + lifetime
