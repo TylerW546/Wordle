@@ -1,5 +1,3 @@
-from curses.ascii import alt
-from numpy import empty
 import pygame
 from pygame.locals import *
 import random
@@ -15,8 +13,8 @@ wordsFile.close()
 
 wordslist = words.split("\n")
 
-targetWordLength = 5
-totalTries = 10
+targetWordLength = 7
+totalTries = 8
 
 validWords = []
 for word in wordslist:
