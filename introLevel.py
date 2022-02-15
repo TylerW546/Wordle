@@ -136,28 +136,33 @@ def sendGuess(guess):
     coloredGuesses.append(surface)
 
 won = False
-while (guesses < 6):
+while (True):
     for event in pygame.event.get():
         if event.type == QUIT:
             pygame.quit()
             exit()
         
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN:
-                if currentGuess == targetWord:
-                    won = True
-                if trySendGuess(currentGuess):
-                    guesses += 1
-                    currentGuessY += guessHeight
-                    currentGuess = ""
-            elif event.key == pygame.K_BACKSPACE:
-                if len(currentGuess) > 0:
-                    currentGuess = currentGuess[0:-1]
-            else:
-                if event.unicode.upper() in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
-                    currentGuess += event.unicode.upper()
-            if len(currentGuess) > 5:
-                currentGuess = currentGuess[:-1]
+        if not(won) and guesses < 6:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    if currentGuess == targetWord:
+                        won = True
+                    if trySendGuess(currentGuess):
+                        guesses += 1
+                        currentGuessY += guessHeight
+                        currentGuess = ""
+                    if won:
+                        Alert(guessStrings[guesses-1])
+                    elif guesses == 6:
+                        Alert(targetWord, 10)
+                elif event.key == pygame.K_BACKSPACE:
+                    if len(currentGuess) > 0:
+                        currentGuess = currentGuess[0:-1]
+                else:
+                    if event.unicode.upper() in "ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+                        currentGuess += event.unicode.upper()
+                if len(currentGuess) > 5:
+                    currentGuess = currentGuess[:-1]
 
     screen.fill(white)
     
@@ -172,11 +177,6 @@ while (guesses < 6):
     screen.blit(title, titleRect)
 
     Alert.update()
-    
-    if won:
-        Alert(guessStrings[guesses])
-    elif guesses == 6:
-        Alert(targetWord)
 
     pygame.display.update()
     time.sleep(.01)
