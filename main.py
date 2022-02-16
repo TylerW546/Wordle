@@ -29,7 +29,6 @@ guesses = 0
 def generateGame():
     global targetWord
     targetWord = random.choice(validWords)
-    print(targetWord)
     global guesses
     guesses = 0
     
