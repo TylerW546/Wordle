@@ -13,8 +13,8 @@ wordsFile.close()
 
 wordslist = words.split("\n")
 
-targetWordLength = 7
-totalTries = 8
+targetWordLength = 5
+totalTries = 6
 
 validWords = []
 for word in wordslist:
