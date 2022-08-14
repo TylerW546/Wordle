@@ -1,5 +1,3 @@
-from curses.ascii import alt
-from numpy import empty
 import pygame
 from pygame.locals import *
 import random
@@ -31,7 +29,6 @@ guesses = 0
 def generateGame():
     global targetWord
     targetWord = random.choice(validWords)
-    print(targetWord)
     global guesses
     guesses = 0
     
