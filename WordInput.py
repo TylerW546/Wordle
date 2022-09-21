@@ -4,12 +4,11 @@ from LetterBox import LetterBox
 from Alert import Alert
 from Keyboard import Keyboard
 
-from config import targetWordLength, validWords, guessStrings, totalTries, guesses, targetWord
 import config
 
 class WordInput():
     inputs = []
-    wordLength = targetWordLength
+    wordLength = config.targetWordLength
     
     width = LetterBox.surfaceWidth*wordLength   +   2*LetterBox.marginLR*wordLength
     height = LetterBox.surfaceHeight   +   2*LetterBox.marginTB
@@ -55,17 +54,16 @@ class WordInput():
         """Attempts to submit the word"""
         if len(self.word) != WordInput.wordLength:
             Alert("Not enough letters")
-        elif self.word not in validWords:
+        elif self.word not in config.validWords:
             Alert("Not in word list")
         else:
             # This word is now complete
             self.complete = True
-            global guesses
-            guesses += 1
+            config.guesses += 1
             # Set correctness of letters
             if self.judgeCorrectness():
                 # Win
-                Alert(guessStrings[(guesses-1)*(len(guessStrings)-1)//(totalTries-1)])
+                Alert(config.guessStrings[(config.guesses-1)*(len(config.guessStrings)-1)//(config.totalTries-1)])
             else:
                 # Set focus to next word
                 WordInput.focusNext()
@@ -93,7 +91,7 @@ class WordInput():
                 word = word[:i] + "1" + word[i+1:]
                 
                 
-        return self.word == targetWord
+        return self.word == config.targetWord
             
     def drawIncomplete(self, screen):
         """Draws the word when it is in progress (not yet submitted)"""
@@ -119,6 +117,6 @@ class WordInput():
         """Set the focused word to be the next in the stack"""
         focusedIndex = WordInput.inputs.index(WordInput.focused)
         if focusedIndex == len(WordInput.inputs)-1: # If ran out of attempts
-            Alert(targetWord) # Give a passive game-over message by simply telling the user the word
+            Alert(config.targetWord) # Give a passive game-over message by simply telling the user the word
         else:
             WordInput.focused = WordInput.inputs[focusedIndex+1] # Focus next words

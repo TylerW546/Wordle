@@ -19,11 +19,10 @@ from LetterBox import LetterBox
 from Keyboard import Keyboard
 from Alert import Alert
 
-from config import targetWordLength, totalTries, validWords, targetWord
 import config
 
-WIDTH = max(500,20+int(targetWordLength*(LetterBox.surfaceWidth+2*LetterBox.marginLR)))
-HEIGHT = max(700,304+int(totalTries*(LetterBox.surfaceHeight+2*LetterBox.marginTB)))
+WIDTH = max(500,20+int(config.targetWordLength*(LetterBox.surfaceWidth+2*LetterBox.marginLR)))
+HEIGHT = max(700,304+int(config.totalTries*(LetterBox.surfaceHeight+2*LetterBox.marginTB)))
 
 def generateGame(validWords, screen):
     config.targetWord = random.choice(validWords)
@@ -31,7 +30,7 @@ def generateGame(validWords, screen):
     guesses = 0
     
     WordInput.inputs = []
-    for i in range(1,totalTries+1):
+    for i in range(1,config.totalTries+1):
         WordInput(WIDTH/2-WordInput.width/2, WordInput.height*i, config.targetWord)
     WordInput.focused = WordInput.inputs[0]
 
@@ -53,7 +52,7 @@ def main():
     title = titleFont.render("Wordle", False, black)
     titleRect = title.get_rect(center=(WIDTH/2, WordInput.height/2))
 
-    generateGame(validWords, screen)
+    generateGame(config.validWords, screen)
     while (True):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -61,7 +60,7 @@ def main():
                 exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    generateGame(validWords, screen)
+                    generateGame(config.validWords, screen)
             
             WordInput.focused.handleEvent(event)
             Keyboard.handleEvent(event)
