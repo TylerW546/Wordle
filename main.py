@@ -1,7 +1,7 @@
 # -----------------------------------------------------------
 # Description: A recreation of the well-known game Wordle. Uses the complete scrabble dictionary to pick words. 
 # Word length and number of tries per game can be modified. 
-# This is done by changing the two variables directly below the stack of imports.
+# This is done by changing the top two variables in config.py.
 # Date Started: February 12, 2022
 # Name: Tyler Weed
 # -----------------------------------------------------------
