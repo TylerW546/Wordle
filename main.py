@@ -1,3 +1,16 @@
+# -----------------------------------------------------------
+# Description: A recreation of the well-known game Wordle. Uses the complete scrabble dictionary to pick words. 
+# Word length and number of tries per game can be modified. 
+# This is done by changing the two variables directly below this stack of comments.
+# Date Started: February 12, 2022
+# Name: Tyler Weed
+# -----------------------------------------------------------
+
+# Word length
+targetWordLength = 5
+# Total tries before game is over
+totalTries = 6
+
 import pygame
 from pygame.locals import *
 import random
@@ -12,9 +25,6 @@ words = wordsFile.read()
 wordsFile.close()
 
 wordslist = words.split("\n")
-
-targetWordLength = 5
-totalTries = 6
 
 validWords = []
 for word in wordslist:
@@ -62,12 +72,18 @@ class LetterBox():
         self.surface = pygame.Surface((LetterBox.surfaceWidth, LetterBox.surfaceHeight))
     
     def setLetter(self, letter):
+        """Sets the box's letter to given letter."""
         self.letter = letter
     
     def setCorrectness(self, c):
+        """Sets the corectness value of the letter. 3 possible values -- 
+        1: Letter is not in word 
+        2: Letter is in wrong spot 
+        3: Letter is in right spot"""
         self.correctness = c
     
     def drawIncomplete(self):
+        """Draws when the letter is not a part of a submitted word"""
         if self.letter == '':
             self.surface.fill(LetterBox.emptyBoxColor)
             pygame.draw.rect(self.surface, white, (LetterBox.border,LetterBox.border,self.surfaceWidth-2*LetterBox.border,self.surfaceHeight-2*LetterBox.border),0)
@@ -81,6 +97,7 @@ class LetterBox():
         screen.blit(self.surface, (self.x, self.y))
 
     def drawComplete(self):
+        """Draws when the letter is a part of a submitted word"""
         if self.correctness == 0:
             self.surface.fill(wrongColor)
         elif self.correctness == 1:
@@ -132,12 +149,14 @@ class WordInput():
             self.wordToLetters()
     
     def wordToLetters(self):
+        """From the string of the word, fill the individual letter objects with characters"""
         for i in range(len(self.word)):
             self.letters[i].setLetter(self.word[i])
         for i in range(len(self.word), WordInput.wordLength):
             self.letters[i].setLetter('')
     
     def sendWord(self):
+        """Attempts to submit the word"""
         if len(self.word) != WordInput.wordLength:
             Alert("Not enough letters")
         elif self.word not in validWords:
@@ -156,6 +175,7 @@ class WordInput():
                 WordInput.focusNext()
     
     def judgeCorrectness(self):
+        """Returns whether the word is correct, and sets the individual correctness value for each letter in the word."""
         target = targetWord
         word = self.word
         
@@ -180,15 +200,18 @@ class WordInput():
         return self.word == targetWord
             
     def drawIncomplete(self):
+        """Draws the word when it is in progress (not yet submitted)"""
         for letter in self.letters:
             letter.drawIncomplete()
     
     def drawComplete(self):
+        """Draws the word when it has been already submitted"""
         for letter in self.letters:
             letter.drawComplete()
             
     @staticmethod
     def drawAll():
+        """Loops over all words, draws them while considering whether they are complete or incomplete"""
         for input in WordInput.inputs:
             if input.complete:
                 input.drawComplete()
@@ -197,11 +220,12 @@ class WordInput():
     
     @staticmethod
     def focusNext():
+        """Set the focused word to be the next in the stack"""
         focusedIndex = WordInput.inputs.index(WordInput.focused)
-        if focusedIndex == len(WordInput.inputs)-1:
-            Alert(targetWord)
+        if focusedIndex == len(WordInput.inputs)-1: # If ran out of attempts
+            Alert(targetWord) # Give a passive game-over message by simply telling the user the word
         else:
-            WordInput.focused = WordInput.inputs[focusedIndex+1]
+            WordInput.focused = WordInput.inputs[focusedIndex+1] # Focus next words
 
 WIDTH = max(500,20+int(targetWordLength*(LetterBox.surfaceWidth+2*LetterBox.marginLR)))
 HEIGHT = max(700,304+int(totalTries*(LetterBox.surfaceHeight+2*LetterBox.marginTB)))
