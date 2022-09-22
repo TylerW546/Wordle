@@ -1,3 +1,12 @@
+# -----------------------------------------------------------
+# Description: This is a one file version of the entire Wordle project. 
+# It is more suitable for an intro to python class, as it is intended to be used
+# Date Started: February 14, 2022
+# Name: Tyler Weed
+# -----------------------------------------------------------
+
+
+
 import pygame
 from pygame.locals import *
 import random

@@ -1,3 +1,5 @@
+# This file holds variables that many files may need to access.
+
 # Word length
 targetWordLength = 5
 # Total tries before game is over
