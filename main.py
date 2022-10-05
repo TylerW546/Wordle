@@ -26,6 +26,9 @@ HEIGHT = max(700,304+int(config.totalTries*(LetterBox.surfaceHeight+2*LetterBox.
 
 def generateGame(validWords, screen):
     config.targetWord = random.choice(validWords)
+    if config.forceTarget != None:
+        config.targetWord = config.forceTarget.upper()
+    
     global guesses
     guesses = 0
     

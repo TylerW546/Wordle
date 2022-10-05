@@ -30,3 +30,6 @@ guesses = 0
 
 # The word to be guessed. Will be defined in main
 targetWord = None
+
+# Set a target word. Leave as None to randomize
+forceTarget = None
